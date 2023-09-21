@@ -12,9 +12,9 @@ typedef struct Fish
 {
     Position position;
     float initialWeight;
-    float weight;
+    float weight;   
 } Fish;
 
 Position fish_swim(Fish* fish) {
-    
+
 }
