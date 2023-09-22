@@ -14,6 +14,8 @@
 #include "sim_util.h"
 
 #define FISH_WEIGHT_MAX_SCALE 2
+#define FISH_WEIGHT_MIN 0.5f
+#define FISH_WEIGHT_MAX 2.0f
 #define FISH_SWIM_MIN -0.1f
 #define FISH_SWIM_MAX 0.1f
 
@@ -28,6 +30,20 @@ typedef struct Fish
     float initialWeight;
     float weight;   
 } Fish;
+
+/**
+ * Initializes a fish object with the given position.
+ *
+ * @param fish a pointer to the Fish object to be initialized
+ * @param position the position of the fish
+ *
+ * @return void
+ */
+void fish_init(Fish* fish, Position position) {
+    fish->position = position;
+    fish->initialWeight = rand_float(FISH_WEIGHT_MIN, FISH_WEIGHT_MAX);
+    fish->weight = fish->initialWeight;
+}
 
 /**
  * @brief Performs a fish's swim in the simulation
