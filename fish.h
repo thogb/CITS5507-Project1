@@ -27,8 +27,10 @@
 typedef struct Fish
 {
     Position position;
+    float distanceFromOrigin;
     float initialWeight;
-    float weight;   
+    float weight;
+    float deltaF;
 } Fish;
 
 /**
@@ -41,8 +43,10 @@ typedef struct Fish
  */
 void fish_init(Fish* fish, Position position) {
     fish->position = position;
+    fish->distanceFromOrigin = position_distance_from_zero(fish->position);
     fish->initialWeight = rand_float(FISH_WEIGHT_MIN, FISH_WEIGHT_MAX);
     fish->weight = fish->initialWeight;
+    fish->deltaF = 0.0f;
 }
 
 /**
@@ -54,13 +58,29 @@ void fish_init(Fish* fish, Position position) {
  * @param fish the fish that will perofmr a swim
  * @return Position the new position of the fish
  */
-Position fish_swim(Fish* fish) {
+float fish_swim(Fish* fish) {
+    Position position = fish->position;
     position_increment(
         &(fish->position), 
         rand_float(FISH_SWIM_MIN, FISH_SWIM_MAX), 
         rand_float(FISH_SWIM_MIN, FISH_SWIM_MAX)
     );
-    return fish->position;
+
+    // update distanceFromOrigin, will be used later on
+    fish->distanceFromOrigin = position_distance_from_zero(fish->position);
+    
+    // delta f is the difference in objective function before and after the fish
+    //  swims. This can be simplified to be the difference between the distance 
+    // from origin before and after the fish swims.
+    //
+    // This is because the objective function is the sum of all the distance
+    // from origin of all fish in the simulation. If only the difference of one 
+    // fish is interested, then the rest will cancel out.
+    fish->deltaF = fabsf(
+        fish->distanceFromOrigin -
+        position_distance_from_zero(position));
+
+    return fish->deltaF;
 }
 
 /**
@@ -69,10 +89,10 @@ Position fish_swim(Fish* fish) {
  * FISH_WEIGHT_MAX_SCALE.
  *
  * @param fish A pointer to the Fish object.
- * @param weight_gain The amount of weight gained by the fish.
+ * @param maxDeltaF The maximum deltaF of all the fish.
  */
-void fish_eat(Fish* fish, float weight_gain) {
-    float newWeight = fish->weight + weight_gain;
+void fish_eat(Fish* fish, float maxDeltaF) {
+    float newWeight = fish->weight + (fish->deltaF / maxDeltaF);
     fish->weight = max_float(
         min_float(
             newWeight,

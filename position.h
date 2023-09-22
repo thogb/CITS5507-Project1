@@ -27,14 +27,13 @@ typedef struct Position
  * Calculates the Euclidean distance of a given position from the origin (0, 0) 
  * in a 2D plane.
  *
- * @param position A pointer to a Position object containing the x and y 
- * coordinates.
+ * @param position A Position object containing the x and y coordinates.
  *
  * @return The distance from the origin to the given position.
  */
-float position_distance_from_zero(Position* position) {
-    float x = position->x;
-    float y = position->y;
+float position_distance_from_zero(Position position) {
+    float x = position.x;
+    float y = position.y;
     return sqrt(x * x + y * y);
 }
 

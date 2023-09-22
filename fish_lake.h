@@ -25,7 +25,7 @@ typedef struct FishLake
     float coord_min_y;
     float coord_max_y;
     int fish_amount;
-    Fish* fish;
+    Fish* fishes;
 } FishLake;
 
 /**
@@ -46,7 +46,7 @@ FishLake* fish_lake_new(
     float half_height = height / 2.0f;
 
     fishLake->fish_amount = fish_amount;
-    fishLake->fish = (Fish*) malloc(fish_amount * sizeof(Fish));
+    fishLake->fishes = (Fish*) malloc(fish_amount * sizeof(Fish));
     fishLake->coord_min_x = -half_width;
     fishLake->coord_max_x = half_width;
     fishLake->coord_min_y = -half_height;
@@ -64,7 +64,7 @@ FishLake* fish_lake_new(
             fishLake->coord_max_y
             )};
         // initialise the fish, also sets a random weight
-        fish_init(&(fishLake->fish[i]),pos);
+        fish_init(&(fishLake->fishes[i]),pos);
     }
 
     return fishLake;
@@ -76,7 +76,7 @@ FishLake* fish_lake_new(
  * @param fishLake the pointer to the FishLake object to be freed
  */
 void fish_lake_free(FishLake* fishLake) {
-    free(fishLake->fish);
+    free(fishLake->fishes);
     free(fishLake);
 }
 
