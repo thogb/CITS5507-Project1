@@ -13,12 +13,18 @@
 #include "sim_util.h"
 
 #define SIMULATION_STEPS 100
-#define FISH_AMOUNT 100
+#define FISH_AMOUNT 1000
 #define FISH_LAKE_WIDTH 200.0f
 #define FISH_LAKE_HEIGHT 200.0f
 
 int main(int argc, char const *argv[])
 {
+    // Init random seed
+    srand(time(NULL));
+    // During some testing on my mac, first rand() is broken, generating value
+    // with little change when time(NULL) changes.
+    rand();
+
     FishLake* fishLake = fish_lake_new(
         FISH_AMOUNT, 
         FISH_LAKE_WIDTH, 

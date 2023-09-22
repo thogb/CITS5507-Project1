@@ -64,7 +64,7 @@ FishLake* fish_lake_new(
             fishLake->coord_max_y
             )};
         // initialise the fish, also sets a random weight
-        fish_init(&(fishLake->fishes[i]),pos);
+        fish_init(&(fishLake->fishes[i]), pos);
     }
 
     return fishLake;
