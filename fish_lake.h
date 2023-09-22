@@ -80,4 +80,35 @@ void fish_lake_free(FishLake* fishLake) {
     free(fishLake);
 }
 
+/**
+ * The fish lake responsible for controlling how a fish swims in the lake. The 
+ * new position of the fish will be checked against the boundaries. If one of 
+ * the coordinate is outside the boundaries, the position will be set to the 
+ * coordinates of the old position.
+ *
+ * @param fishLake a pointer to the FishLake object containing the fish
+ * @param fish a pointer to the fish
+ *
+ * @return The deltaF produced after the fish swims
+ */
+float fish_lake_fish_swim(FishLake* fishLake, Fish* fish) {
+    Position position = fish->position;
+    Position newPosition = position;
+    position_increment(
+        &newPosition, 
+        rand_float(FISH_SWIM_MIN, FISH_SWIM_MAX), 
+        rand_float(FISH_SWIM_MIN, FISH_SWIM_MAX)
+    );
+
+    if (!f_is_between(newPosition.x, fishLake->coord_min_x, fishLake->coord_max_x)) {
+        newPosition.x = position.x;
+    }
+
+    if (!f_is_between(newPosition.y, fishLake->coord_min_y, fishLake->coord_max_y)) {
+        newPosition.y = position.y;
+    }
+
+    return fish_swim(fish, newPosition);
+}
+
 #endif

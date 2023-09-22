@@ -14,8 +14,8 @@
 #include "sim_util.h"
 
 #define FISH_WEIGHT_MAX_SCALE 2
-#define FISH_WEIGHT_MIN 0.5f
-#define FISH_WEIGHT_MAX 2.0f
+#define FISH_INIT_WEIGHT_MIN 0.1f
+#define FISH_INIT_WEIGHT_MAX 4.0f
 #define FISH_SWIM_MIN -0.1f
 #define FISH_SWIM_MAX 0.1f
 
@@ -44,7 +44,7 @@ typedef struct Fish
 void fish_init(Fish* fish, Position position) {
     fish->position = position;
     fish->distanceFromOrigin = position_distance_from_zero(fish->position);
-    fish->initialWeight = rand_float(FISH_WEIGHT_MIN, FISH_WEIGHT_MAX);
+    fish->initialWeight = rand_float(FISH_INIT_WEIGHT_MIN, FISH_INIT_WEIGHT_MAX);
     fish->weight = fish->initialWeight;
     fish->deltaF = 0.0f;
 }
@@ -58,13 +58,14 @@ void fish_init(Fish* fish, Position position) {
  * @param fish the fish that will perofmr a swim
  * @return Position the new position of the fish
  */
-float fish_swim(Fish* fish) {
+float fish_swim(Fish* fish, Position newPosition) {
     Position position = fish->position;
-    position_increment(
-        &(fish->position), 
-        rand_float(FISH_SWIM_MIN, FISH_SWIM_MAX), 
-        rand_float(FISH_SWIM_MIN, FISH_SWIM_MAX)
-    );
+    // position_increment(
+    //     &(fish->position), 
+    //     rand_float(FISH_SWIM_MIN, FISH_SWIM_MAX), 
+    //     rand_float(FISH_SWIM_MIN, FISH_SWIM_MAX)
+    // );
+    fish->position = newPosition;    
 
     // update distanceFromOrigin, will be used later on
     fish->distanceFromOrigin = position_distance_from_zero(fish->position);
@@ -93,10 +94,10 @@ float fish_swim(Fish* fish) {
  */
 void fish_eat(Fish* fish, float maxDeltaF) {
     float newWeight = fish->weight + (fish->deltaF / maxDeltaF);
-    fish->weight = max_float(
-        min_float(
+    fish->weight = min_float(
+        max_float(
             newWeight,
-            0.0f
+            FISH_INIT_WEIGHT_MIN
         ),
         fish->initialWeight * FISH_WEIGHT_MAX_SCALE
     );

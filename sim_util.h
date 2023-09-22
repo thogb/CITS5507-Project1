@@ -48,4 +48,17 @@ float min_float(float a, float b) {
     return a < b ? a : b;
 }
 
+/**
+ * Checks if a given value is within a specified range.
+ *
+ * @param value the value to check
+ * @param min the minimum value of the range (inclusive)
+ * @param max the maximum value of the range (inclusive)
+ *
+ * @return true if the value is within the specified range, false otherwise
+ */
+int f_is_between(float val, float min, float max) {
+    return (val >= min && val <= max);
+}
+
 #endif

@@ -13,7 +13,7 @@
 #include "sim_util.h"
 
 #define SIMULATION_STEPS 100
-#define FISH_AMOUNT 1000
+#define FISH_AMOUNT 100000
 #define FISH_LAKE_WIDTH 200.0f
 #define FISH_LAKE_HEIGHT 200.0f
 
@@ -44,7 +44,7 @@ int main(int argc, char const *argv[])
         float baryCentre = 0.0f;
         float sumOfDistWeight = 0.0f;
 
-        // get value of objective function
+        // calc the value of objective function
         for (int i = 0; i < FISH_AMOUNT; i++)
         {
             objectiveValue += fishes[i].distanceFromOrigin;
@@ -58,6 +58,7 @@ int main(int argc, char const *argv[])
         for (int i = 0; i < FISH_AMOUNT; i++)
         {
             sumOfDistWeight += fishes[i].distanceFromOrigin * fishes[i].weight;
+            // printf("distanceFromOrigin = %f, weight = %f\n", fishes[i].distanceFromOrigin, fishes[i].weight);
         }
 
         baryCentre = sumOfDistWeight / objectiveValue;
@@ -67,7 +68,7 @@ int main(int argc, char const *argv[])
             // The fish will swim and keep track of the old position, which is
             // used to calculate delta f (the change in objective function).
             // Each fish also stores a deltaF maxDeltaF is updated.
-            float deltaF = fish_swim(&(fishes[j]));
+            float deltaF = fish_lake_fish_swim(fishLake, &(fishes[j]));
             maxDeltaF = max_float(maxDeltaF, deltaF);
         }
 
@@ -77,7 +78,7 @@ int main(int argc, char const *argv[])
             fish_eat(&(fishes[i]), maxDeltaF);
         }
 
-        printf("Step %d: Objective value = %f, Barycentre = %f\n", \
+        printf("Step %d: Objective_value=%f,Barycentre=%f\n", \
          i, objectiveValue, baryCentre);
     }
     
