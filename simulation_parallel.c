@@ -12,6 +12,12 @@
 #include "fish_lake.h"
 #include "sim_util.h"
 
+#ifdef __APPLE__
+    #include "/opt/homebrew/Cellar/libomp/17.0.1/include/omp.h"
+#else
+    #include <omp.h>
+#endif
+
 #define SIMULATION_STEPS 100
 // #define FISH_AMOUNT 100000
 #define FISH_LAKE_WIDTH 200.0f
@@ -44,6 +50,9 @@ int main(int argc, char const *argv[])
         }
     }
 
+    // omp_set_num_threads(16);
+    printf("Prgram: omp_get_max_threads = %d\n", omp_get_max_threads());
+
     // Init random seed
     srand(time(NULL));
     // During some testing on my mac, first rand() is broken, generating value
@@ -55,7 +64,7 @@ int main(int argc, char const *argv[])
         FISH_LAKE_WIDTH, 
         FISH_LAKE_HEIGHT);
 
-    clock_t start = clock();
+    double start = omp_get_wtime();
 
     // The simulation start with t or i = 0 representing the first time step. 
     // But before this, fish are all initialised with random weight and position 
@@ -70,16 +79,19 @@ int main(int argc, char const *argv[])
         float sumOfDistWeight = 0.0f;
 
         // calc the value of objective function
+        #pragma omp parallel for reduction(+: objectiveValue)
         for (int i = 0; i < fishAmount; i++)
         {
             objectiveValue += fishes[i].distanceFromOrigin;
         }
+
         // calculate barycenter of the fish school. In the real simulation I am 
         // guessing this is needed to find the direction for the fish to swim 
         // towards. Hence, barycenter is calculated before the fish swims in 
         // each time step. The equation also uses W(t) to represent the fish 
         // weight used in the barycenter calculation. The following eat and swim
         //  will both be producing W(t+1) and Position(t+1)
+        #pragma omp parallel for reduction(+: sumOfDistWeight)
         for (int i = 0; i < fishAmount; i++)
         {
             sumOfDistWeight += fishes[i].distanceFromOrigin * fishes[i].weight;
@@ -88,15 +100,23 @@ int main(int argc, char const *argv[])
         baryCentre = sumOfDistWeight / objectiveValue;
 
         // every fish will first swim so deltaF can be calculated
+        #pragma omp parallel for
         for (int j = 0; j < fishAmount; j++) {
             // The fish will swim and keep track of the old position, which is
             // used to calculate delta f (the change in objective function).
             // Each fish also stores a deltaF maxDeltaF is updated.
             float deltaF = fish_lake_fish_swim(fishLake, &(fishes[j]));
-            maxDeltaF = max_float(maxDeltaF, deltaF);
+        }
+
+        // calculate maxDeltaF
+        #pragma omp parallel for reduction(max: maxDeltaF)
+        for (int i = 0; i < fishAmount; i++)
+        {
+            maxDeltaF = max_float(maxDeltaF, fishes[i].deltaF);
         }
 
         // every fish will eat, which requires maxDeltaF
+        #pragma omp parallel for
         for (int i = 0; i < fishAmount; i++)
         {
             fish_eat(&(fishes[i]), maxDeltaF);
@@ -106,8 +126,8 @@ int main(int argc, char const *argv[])
         //  i, objectiveValue, baryCentre);
     }
     
-    clock_t end = clock();
-    double elapsed_secs = ((double) (end - start)) / CLOCKS_PER_SEC;
+    double end = omp_get_wtime();
+    double elapsed_secs = end - start;
     printf("Elapsed time: %f\n", elapsed_secs);
 
     fish_lake_free(fishLake);
