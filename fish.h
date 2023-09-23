@@ -14,8 +14,11 @@
 #include "sim_util.h"
 
 #define FISH_WEIGHT_MAX_SCALE 2
-#define FISH_INIT_WEIGHT_MIN 0.1f
-#define FISH_INIT_WEIGHT_MAX 4.0f
+// assuming fish weight in grams, 10 gram represnet a breed of very small fish.
+// and 20kg represents a very large type of fish, with max weight of 40kg or
+// 40000.0f
+#define FISH_INIT_WEIGHT_MIN 10.0f
+#define FISH_INIT_WEIGHT_MAX 20000.0f
 #define FISH_SWIM_MIN -0.1f
 #define FISH_SWIM_MAX 0.1f
 
