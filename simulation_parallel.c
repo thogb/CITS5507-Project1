@@ -23,8 +23,23 @@
 #define FISH_LAKE_WIDTH 200.0f
 #define FISH_LAKE_HEIGHT 200.0f
 
+#if defined(S_DYNAMIC)
+    #define S_METHOD dynamic
+    #define S_METHOD_STR "dynamic"
+#elif defined(S_GUIDED)
+    #define S_METHOD guided
+    #define S_METHOD_STR "guided"
+#else
+    #define S_METHOD static
+    #define S_METHOD_STR "static"
+#endif
+
 int main(int argc, char const *argv[])
 {
+    int fishAmount = atoi(argv[1]);
+    int simulationSteps = SIMULATION_STEPS;
+    unsigned int randSeed = time(NULL);
+
     // Since the number of fishes are allocated on the heap at runtime, fish 
     // amount can be dynamic. It would be easier to run the expirement with 
     // the fish amount variable as an program argument.
@@ -33,15 +48,11 @@ int main(int argc, char const *argv[])
          ./simulation_sequential <fish amount>\n");
         return 1;
     }
-    
-    int fishAmount = atoi(argv[1]);
 
     if (fishAmount <= 0) {
         printf("Invalid fish amount as argument\n");
         return 1;
     }
-
-    int simulationSteps = SIMULATION_STEPS;
 
     if (argc >= 3) {
         int argSimulationSteps = atoi(argv[2]);
@@ -49,11 +60,6 @@ int main(int argc, char const *argv[])
             simulationSteps = argSimulationSteps;
         }
     }
-
-    unsigned int randSeed = time(NULL);
-
-    // omp_set_num_threads(16);
-    printf("Pragma: omp_get_max_threads = %d\n", omp_get_max_threads());
 
     FishLake* fishLake = fish_lake_new(
         fishAmount, 
@@ -75,7 +81,7 @@ int main(int argc, char const *argv[])
         float sumOfDistWeight = 0.0f;
 
         // calc the value of objective function
-        #pragma omp parallel for reduction(+: objectiveValue)
+        #pragma omp parallel for schedule(S_METHOD) reduction(+: objectiveValue)
         for (int i = 0; i < fishAmount; i++)
         {
             objectiveValue += fishes[i].distanceFromOrigin;
@@ -87,7 +93,7 @@ int main(int argc, char const *argv[])
         // each time step. The equation also uses W(t) to represent the fish 
         // weight used in the barycenter calculation. The following eat and swim
         //  will both be producing W(t+1) and Position(t+1)
-        #pragma omp parallel for reduction(+: sumOfDistWeight)
+        #pragma omp parallel for schedule(S_METHOD) reduction(+: sumOfDistWeight)
         for (int i = 0; i < fishAmount; i++)
         {
             sumOfDistWeight += fishes[i].distanceFromOrigin * fishes[i].weight;
@@ -100,7 +106,7 @@ int main(int argc, char const *argv[])
         {
             randSeed += omp_get_thread_num();
 
-            #pragma omp for
+            #pragma omp for schedule(S_METHOD)
             for (int j = 0; j < fishAmount; j++) {
                 // The fish will swim and keep track of the old position, which is
                 // used to calculate delta f (the change in objective function).
@@ -110,14 +116,14 @@ int main(int argc, char const *argv[])
         }
 
         // calculate maxDeltaF
-        #pragma omp parallel for reduction(max: maxDeltaF)
+        #pragma omp parallel for schedule(S_METHOD) reduction(max: maxDeltaF)
         for (int i = 0; i < fishAmount; i++)
         {
             maxDeltaF = max_float(maxDeltaF, fishes[i].deltaF);
         }
 
         // every fish will eat, which requires maxDeltaF
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(S_METHOD)
         for (int i = 0; i < fishAmount; i++)
         {
             fish_eat(&(fishes[i]), maxDeltaF);
@@ -126,7 +132,8 @@ int main(int argc, char const *argv[])
     
     double end = omp_get_wtime();
     double elapsed_secs = end - start;
-    printf("Elapsed time: %f\n", elapsed_secs);
+
+    printf("omp_get_max_threads=%d, schedule=%s, time_taken=%f\n", omp_get_max_threads(), S_METHOD_STR, elapsed_secs);
 
     fish_lake_free(fishLake);
     return 0;

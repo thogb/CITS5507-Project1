@@ -1,0 +1,26 @@
+omp_get_max_threads=1, schedule=static, time_taken=0.638901
+omp_get_max_threads=2, schedule=static, time_taken=0.565732
+omp_get_max_threads=4, schedule=static, time_taken=0.352713
+omp_get_max_threads=8, schedule=static, time_taken=0.250563
+omp_get_max_threads=16, schedule=static, time_taken=0.196816
+omp_get_max_threads=32, schedule=static, time_taken=0.165862
+omp_get_max_threads=64, schedule=static, time_taken=0.210501
+omp_get_max_threads=128, schedule=static, time_taken=0.231592
+Running experiment: FISH_AMOUNT=100000, schedule=S_DYNAMIC
+omp_get_max_threads=1, schedule=dynamic, time_taken=0.805953
+omp_get_max_threads=2, schedule=dynamic, time_taken=2.607256
+omp_get_max_threads=4, schedule=dynamic, time_taken=2.180661
+omp_get_max_threads=8, schedule=dynamic, time_taken=1.214798
+omp_get_max_threads=16, schedule=dynamic, time_taken=0.975529
+omp_get_max_threads=32, schedule=dynamic, time_taken=0.795289
+omp_get_max_threads=64, schedule=dynamic, time_taken=0.812052
+omp_get_max_threads=128, schedule=dynamic, time_taken=0.830306
+Running experiment: FISH_AMOUNT=100000, schedule=S_GUIDED
+omp_get_max_threads=1, schedule=guided, time_taken=0.648632
+omp_get_max_threads=2, schedule=guided, time_taken=0.451423
+omp_get_max_threads=4, schedule=guided, time_taken=0.319178
+omp_get_max_threads=8, schedule=guided, time_taken=0.231488
+omp_get_max_threads=16, schedule=guided, time_taken=0.187655
+omp_get_max_threads=32, schedule=guided, time_taken=0.162281
+omp_get_max_threads=64, schedule=guided, time_taken=0.187034
+omp_get_max_threads=128, schedule=guided, time_taken=0.202993
