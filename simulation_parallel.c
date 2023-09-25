@@ -50,14 +50,10 @@ int main(int argc, char const *argv[])
         }
     }
 
-    // omp_set_num_threads(16);
-    printf("Prgram: omp_get_max_threads = %d\n", omp_get_max_threads());
+    unsigned int randSeed = time(NULL);
 
-    // Init random seed
-    srand(time(NULL));
-    // During some testing on my mac, first rand() is broken, generating value
-    // with little change when time(NULL) changes.
-    rand();
+    // omp_set_num_threads(16);
+    printf("Pragma: omp_get_max_threads = %d\n", omp_get_max_threads());
 
     FishLake* fishLake = fish_lake_new(
         fishAmount, 
@@ -100,12 +96,17 @@ int main(int argc, char const *argv[])
         baryCentre = sumOfDistWeight / objectiveValue;
 
         // every fish will first swim so deltaF can be calculated
-        #pragma omp parallel for
-        for (int j = 0; j < fishAmount; j++) {
-            // The fish will swim and keep track of the old position, which is
-            // used to calculate delta f (the change in objective function).
-            // Each fish also stores a deltaF maxDeltaF is updated.
-            float deltaF = fish_lake_fish_swim(fishLake, &(fishes[j]));
+        #pragma omp parallel firstprivate(randSeed)
+        {
+            randSeed += omp_get_thread_num();
+
+            #pragma omp for
+            for (int j = 0; j < fishAmount; j++) {
+                // The fish will swim and keep track of the old position, which is
+                // used to calculate delta f (the change in objective function).
+                // Each fish also stores a deltaF maxDeltaF is updated.
+                float deltaF = fish_lake_fish_swim(fishLake, &(fishes[j]), &randSeed);
+            }
         }
 
         // calculate maxDeltaF
@@ -121,9 +122,6 @@ int main(int argc, char const *argv[])
         {
             fish_eat(&(fishes[i]), maxDeltaF);
         }
-
-        // printf("Step %d: Objective_value=%f,Barycentre=%f\n", \
-        //  i, objectiveValue, baryCentre);
     }
     
     double end = omp_get_wtime();

@@ -25,6 +25,20 @@ float rand_float(float min, float max) {
 }
 
 /**
+ * Generates a random float between min and max
+ *
+ * @param seed the seed for the random number generator
+ * @param min the minimum value for the random float
+ * @param max the maximum value for the random float
+ *
+ * @return a random float between the minimum and maximum values
+ */
+float rand_r_float(unsigned int * seed, float min, float max) {
+    float randFloat = (float) rand_r(seed) / (float) RAND_MAX;
+    return min + randFloat * (max - min);
+}
+
+/**
  * Returns the maximum value between two floats.
  *
  * @param a the first float value

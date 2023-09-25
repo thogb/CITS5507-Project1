@@ -44,11 +44,7 @@ int main(int argc, char const *argv[])
         }
     }
 
-    // Init random seed
-    srand(time(NULL));
-    // During some testing on my mac, first rand() is broken, generating value
-    // with little change when time(NULL) changes.
-    rand();
+    unsigned int randSeed = time(NULL);
 
     FishLake* fishLake = fish_lake_new(
         fishAmount, 
@@ -92,7 +88,7 @@ int main(int argc, char const *argv[])
             // The fish will swim and keep track of the old position, which is
             // used to calculate delta f (the change in objective function).
             // Each fish also stores a deltaF maxDeltaF is updated.
-            float deltaF = fish_lake_fish_swim(fishLake, &(fishes[j]));
+            float deltaF = fish_lake_fish_swim(fishLake, &(fishes[j]), &randSeed);
             maxDeltaF = max_float(maxDeltaF, deltaF);
         }
 
@@ -101,9 +97,6 @@ int main(int argc, char const *argv[])
         {
             fish_eat(&(fishes[i]), maxDeltaF);
         }
-
-        // printf("Step %d: Objective_value=%f,Barycentre=%f\n", \
-        //  i, objectiveValue, baryCentre);
     }
     
     clock_t end = clock();

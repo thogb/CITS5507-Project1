@@ -91,13 +91,13 @@ void fish_lake_free(FishLake* fishLake) {
  *
  * @return The deltaF produced after the fish swims
  */
-float fish_lake_fish_swim(FishLake* fishLake, Fish* fish) {
+float fish_lake_fish_swim(FishLake* fishLake, Fish* fish, unsigned int * seed) {
     Position position = fish->position;
     Position newPosition = position;
     position_increment(
         &newPosition, 
-        rand_float(FISH_SWIM_MIN, FISH_SWIM_MAX), 
-        rand_float(FISH_SWIM_MIN, FISH_SWIM_MAX)
+        rand_r_float(seed, FISH_SWIM_MIN, FISH_SWIM_MAX), 
+        rand_r_float(seed, FISH_SWIM_MIN, FISH_SWIM_MAX)
     );
 
     if (!f_is_between(newPosition.x, fishLake->coord_min_x, fishLake->coord_max_x)) {
